@@ -29,3 +29,9 @@ which(
     covid_testing$patient_class == "outpatient" &
     covid_testing$result == "positive"
   )
+
+#(7) Use the quantile function to identify the median, ...
+man <- subset(covid_testing, gender == "male")
+cat("median: ", quantile(man$age, 0.5),
+    "\n10% quantile: ", quantile(man$age, 0.1),
+    "\n90% quantile: ", quantile(man$age, 0.9))
