@@ -2,7 +2,6 @@
 library(medicaldata)
 data(covid_testing)
 
-
 # (2) The number of observations (rows) in the data set
 num_observations <- nrow(covid_testing)
 #num_observations
@@ -52,7 +51,6 @@ print(rmse) #25.95354
 # Improve model
 new_covid_testing <- covid_testing[covid_testing$age < 20, ]
 new_covid_testing$age
-
 new_model <- lm(new_covid_testing$pan_day ~ new_covid_testing$age, data = new_covid_testing)
 summary(new_model) #R-squared:  0.1967, p-val: <2e-16
 
