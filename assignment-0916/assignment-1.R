@@ -1,7 +1,6 @@
 # (1)Install the medicaldata package and ...
 library(medicaldata)
 data(covid_testing)
-write.csv(covid_testing, "covid_testing.csv", row.names = FALSE)
 
 
 # (2) The number of observations (rows) in the data set
@@ -40,30 +39,25 @@ cat("median: ", quantile(man$age, 0.5),
 
 #(8) Write a short paragraph (probably 5-10 sentences) ...
 
-## single lenear regression
+# single linear regression
 model <- lm(covid_testing$pan_day ~ covid_testing$age, data = covid_testing)
-summary(model)
+summary(model) #R-squared:  0.09, p-val: <2e-16
 
-lm(result ~ covid_testing$age, data=covid_testing)
+## rmse
+predictions <- predict(model, covid_testing)
+mse <- mean((covid_testing$pan_day - predictions)^2)
+rmse <- sqrt(mse)
+print(rmse) #25.95354
 
+# Improve model
+new_covid_testing <- covid_testing[covid_testing$age < 20, ]
+new_covid_testing$age
 
-median_panday <- median(covid_testing$pan_day)
-pan_day <- ifelse(covid_testing$pan_day <= median_panday, 0, 1)
-arranged_data <- data.frame(covid_testing$age, pan_day)
-arranged_data
+new_model <- lm(new_covid_testing$pan_day ~ new_covid_testing$age, data = new_covid_testing)
+summary(new_model) #R-squared:  0.1967, p-val: <2e-16
 
-
-model <- glm(arranged_data$pan_day ~ arranged_data$age, data=arranged_data, family=binomial)
-
-
-
-
-
-age <- ifelse(covid_testing$age <= 18, 0, 1)
-result <- ifelse(covid_testing$result == "negative", 0, 1)
-
-arranged_data <- data.frame(age, result)
-arranged_data
-model <- glm(result ~ age, data=arranged_data, family=binomial)
-summary(model)
-predicted_probabilities <- predict(model, newdata=newdata, type="response")
+## rmse
+new_predictions <- predict(new_model, new_covid_testing)
+new_mse <- mean((new_covid_testing$pan_day - new_predictions)^2)
+new_rmse <- sqrt(new_mse)
+print(new_rmse) #24.45253
