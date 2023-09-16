@@ -9,7 +9,6 @@ num_observations
 # (3) The number and names of the columns
 num_columns <- ncol(covid_testing)
 column_names <- names(covid_testing)
-
 cat("Number of columns:", num_columns, "\n")
 cat("Column names:", paste(column_names, collapse = ", "), "\n")
 
