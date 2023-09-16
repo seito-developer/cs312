@@ -38,23 +38,24 @@ cat("median: ", quantile(man$age, 0.5),
 #(8) Write a short paragraph (probably 5-10 sentences) ...
 
 # single linear regression
-model <- lm(covid_testing$pan_day ~ covid_testing$age, data = covid_testing)
-summary(model) #R-squared:  0.09, p-val: <2e-16
+covid_clean <- covid_testing[complete.cases(covid_testing), ]
+model_clean <- lm(ct_result ~ age, data=covid_clean)
+summary(model_clean)
 
 ## rmse
-predictions <- predict(model, covid_testing)
-mse <- mean((covid_testing$pan_day - predictions)^2)
+predictions <- predict(model_clean, covid_clean)
+mse <- mean((covid_clean$ct_result - predictions)^2)
 rmse <- sqrt(mse)
-print(rmse) #25.95354
+rmse
 
 # Improve model
-new_covid_testing <- covid_testing[covid_testing$age < 20, ]
-new_covid_testing$age
-new_model <- lm(new_covid_testing$pan_day ~ new_covid_testing$age, data = new_covid_testing)
-summary(new_model) #R-squared:  0.1967, p-val: <2e-16
+new_covid_testing <- covid_clean[covid_clean$drive_thru_ind == 1,]
+new_model <- lm(new_covid_testing$ct_result ~ new_covid_testing$age, data = new_covid_testing)
+summary(new_model)
 
 ## rmse
 new_predictions <- predict(new_model, new_covid_testing)
-new_mse <- mean((new_covid_testing$pan_day - new_predictions)^2)
+new_mse <- mean((new_covid_testing$ct_result - new_predictions)^2)
 new_rmse <- sqrt(new_mse)
-print(new_rmse) #24.45253
+new_rmse
+
