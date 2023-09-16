@@ -1,6 +1,8 @@
 # (1)Install the medicaldata package and ...
 library(medicaldata)
 data(covid_testing)
+write.csv(covid_testing, "covid_testing.csv", row.names = FALSE)
+
 
 # (2) The number of observations (rows) in the data set
 num_observations <- nrow(covid_testing)
@@ -35,3 +37,33 @@ man <- subset(covid_testing, gender == "male")
 cat("median: ", quantile(man$age, 0.5),
     "\n10% quantile: ", quantile(man$age, 0.1),
     "\n90% quantile: ", quantile(man$age, 0.9))
+
+#(8) Write a short paragraph (probably 5-10 sentences) ...
+
+## single lenear regression
+model <- lm(covid_testing$pan_day ~ covid_testing$age, data = covid_testing)
+summary(model)
+
+lm(result ~ covid_testing$age, data=covid_testing)
+
+
+median_panday <- median(covid_testing$pan_day)
+pan_day <- ifelse(covid_testing$pan_day <= median_panday, 0, 1)
+arranged_data <- data.frame(covid_testing$age, pan_day)
+arranged_data
+
+
+model <- glm(arranged_data$pan_day ~ arranged_data$age, data=arranged_data, family=binomial)
+
+
+
+
+
+age <- ifelse(covid_testing$age <= 18, 0, 1)
+result <- ifelse(covid_testing$result == "negative", 0, 1)
+
+arranged_data <- data.frame(age, result)
+arranged_data
+model <- glm(result ~ age, data=arranged_data, family=binomial)
+summary(model)
+predicted_probabilities <- predict(model, newdata=newdata, type="response")
