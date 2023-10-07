@@ -15,7 +15,7 @@ programming_score <- data$programming_score
 
 model <- lm(english_score ~ programming_score)
 
-#summary(model)
+summary(model)
 
 # Estimate RMSE
 #rmse <- calc_rmse(test_df$english_score, y_pred)
