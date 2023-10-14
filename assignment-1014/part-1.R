@@ -65,7 +65,7 @@ ggplot(treatment_effects, aes(x = factor(Level_of_Education), y = Treatment_Effe
   labs(
     x = "Level of Education",
     y = "Treatment Effect (SW - Control)",
-    title = "Treatment Effect of Social Work (SW) vs. Control by Sex and Education Level",
+    title = "Treatment Effect of SW vs. Control \n by Sex and Education Level",
     fill = "Sex"
   ) +
   theme_minimal()
