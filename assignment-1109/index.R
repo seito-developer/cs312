@@ -96,8 +96,6 @@ print_data(4, "Increase")
     #arramged_dataset$`Exercise4 Active Time`,
 ##  data = arramged_dataset, method = "nearest")
 
-# マッチング結果のサマリー
 ##summary(ps_model)
-
-# マッチングされたデータセットを取得
 ##matched_data <- match.data(ps_model)
+##matched_data
