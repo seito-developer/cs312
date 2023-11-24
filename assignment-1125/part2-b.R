@@ -44,3 +44,16 @@ treatment_effect
 t_test_result
 dropped_units
 
+
+# Part 2(c)
+x_labels <- c(0, 0.25, 0.5, 0.75, 1.0)
+x_pos <- 1:length(x_labels)  # X軸の位置
+
+quantiles_result <- quantile(matched_dataset$leasing_rate)
+sorted_result <- sort(quantiles_result)
+plot(x_pos, sorted_result,
+     xlab = "Quantiles", ylab = "Leasing Rate", 
+     main = "Leasing Rate Quantiles",
+     type = "b", pch = 19, xaxt = "n" 
+     )
+axis(1, at = x_pos, labels = x_labels)
