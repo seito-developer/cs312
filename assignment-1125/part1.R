@@ -46,4 +46,3 @@ results2 <- lapply(split(d, d$block), function(block_data) {
   fisher.test(cross_table2)
 })
 results2
-block_data$vote_pop
