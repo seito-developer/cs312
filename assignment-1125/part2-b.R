@@ -57,3 +57,13 @@ plot(x_pos, sorted_result,
      type = "b", pch = 19, xaxt = "n" 
      )
 axis(1, at = x_pos, labels = x_labels)
+quantile(matched_control$leasing_rate)
+
+# Part 2(d)
+install.packages("sensemakr")
+library(sensemakr)
+
+model <- lm(leasing_rate ~ green_rating, data = matched_dataset)
+sensitivity_analysis <- sensemakr(model, treatment = "green_rating")
+plot(sensitivity_analysis, type = "contour")
+sensitivity_analysis
