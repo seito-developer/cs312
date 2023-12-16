@@ -1,83 +1,116 @@
 # Setup
 install.packages("dplyr")
-library(dplyr)
 install.packages("readxl")
-library(readxl)
 install.packages("openxlsx")
-library(openxlsx)
 install.packages("MatchIt")
-library(MatchIt)
 install.packages("cobalt")
+install.packages("ggplot2")
+library(dplyr)
+library(readxl)
+library(openxlsx)
+library(MatchIt)
 library(cobalt)
 data("lalonde", package = "cobalt")
-
-install.packages("ggplot2")
 library(ggplot2)
-#install.packages("EValue")
-#library(EValue)
-install.packages('cowplot')
-library('cowplot')
 
+# load data
 data <- read_excel("/Users/seito/Documents/develop/cs312/assignment-1109/DataSet para RUO.xlsx")
 head(data)
 
-# 1～100行には1を、それ以外には0を設定
+# clean up data
 data <- data %>% mutate(treatment = ifelse(row_number() <= 100, 1, 0))
+data_clean <- na.omit(data)
 
-data$treatment
+# matching
+m.out_rf <- matchit(treatment ~ `Race Effectiveness` + `Exercise1 Effectiveness` + `Exercise2 Effectiveness` + `Exercise3 Effectiveness` + `Exercise4 Effectiveness`, 
+                 #`Race Effectiveness Increase` + `Exercise1 Effectiveness Increase`	+ `Exercise 2 Effectiveness Increase` + `Exercise3 Effectiveness Increase` + `Exercise4 Effectiveness Increase`,
+                 data = data_clean, method = "nearest",
+                 caliper = 0.25, ratio = 1, replace = FALSE)
+m.out_rfi <- matchit(treatment ~ `Race Effectiveness Increase` + `Exercise1 Effectiveness Increase`	+ `Exercise 2 Effectiveness Increase` + `Exercise3 Effectiveness Increase` + `Exercise4 Effectiveness Increase`,
+                 data = data_clean, method = "nearest",
+                 caliper = 0.25, ratio = 1, replace = FALSE)
+summary(m.out_rf)
+summary(m.out_rfi)
 
-
-m.out <- matchit(treatment ~ `Exercise1 Effectiveness` + `Exercise2 Effectiveness`, 
-        data = data, method = "nearest",
-        caliper = 0.25, ratio = 1, replace = FALSE)
-
-summary(m.out)
-
-love.plot(m.out, stats = "m", thresholds = 0.1, abs = TRUE, 
+# plot matching
+love.plot(m.out_rf, stats = "m", thresholds = 0.1, abs = TRUE, 
           var.order = "unadjusted", line = FALSE, stars = "none",
           limits = list(m = c(0,1)),
           colors = c("#191970", "#db7093"),
           shapes = c("triangle", "circle"),
-          alpha = .8, grid = TRUE, title = "")
-  #labs(x = "Absolute standardized mean difference")
+          alpha = .8, grid = TRUE, title = "") + labs(x = "")
 
-# Made groups
-#control_group <- data[1:100, ]
-#treatment_group <- data[101:235, ]
-data[1:235]
+love.plot(m.out_rfi, stats = "m", thresholds = 0.1, abs = TRUE, 
+          var.order = "unadjusted", line = FALSE, stars = "none",
+          limits = list(m = c(0,1)),
+          colors = c("#191970", "#db7093"),
+          shapes = c("triangle", "circle"),
+          alpha = .8, grid = TRUE, title = "") + labs(x = "")
 
-mean(control_group$`Exercise1 Effectiveness`)
-mean(treatment_group$`Exercise1 Effectiveness`)
+# Analyze by matched data
+data_match_rf <- match.data(m.out_rf)
+data_match_rfi <- match.data(m.out_rfi)
+nrow(data_match_rf) #160
+nrow(data_match_rfi) #158
 
-# Matcing
-##install.packages("MatchIt")
-##library(MatchIt)
+rf_control_group <- data_match_rf[data_match_rf$treatment == 0,]
+rf_treatment_group <- data_match_rf[data_match_rf$treatment == 1,]
+rfi_control_group <- data_match_rfi[data_match_rfi$treatment == 0,]
+rfi_treatment_group <- data_match_rfi[data_match_rfi$treatment == 1,]
 
-##control_group$treatment <- 0
-##treatment_group$treatment <- 1
-
-##combined_data <- rbind(control_group, treatment_group)
-##arramged_dataset <- na.omit(combined_data)
-
-##ps_model <- matchit(
-##  arramged_dataset$treatment ~ 
-##    ##arramged_dataset$`Race Effectiveness` + 
-#arramged_dataset$`Exercise1 Effectiveness` +
-#arramged_dataset$`Exercise2 Effectiveness` +
-#arramged_dataset$`Exercise3 Effectiveness` + 
-#arramged_dataset$`Exercise4 Effectiveness` + 
-#arramged_dataset$`Race Effectiveness Increase` + 
-#arramged_dataset$`Exercise1 Effectiveness Increase` +
-#arramged_dataset$`Exercise 2 Effectiveness Increase` +
-#arramged_dataset$`Exercise3 Effectiveness Increase` + 
-#arramged_dataset$`Exercise4 Effectiveness Increase` + 
-#arramged_dataset$`Race Active Time`,
-#arramged_dataset$`Exercise1 Active Time` +
-#arramged_dataset$`Exercise2 Active Time` +
-#arramged_dataset$`Exercise3 Active Time` +
-#arramged_dataset$`Exercise4 Active Time`,
-##  data = arramged_dataset, method = "nearest")
-
-##summary(ps_model)
-##matched_data <- match.data(ps_model)
-##matched_data
+## U-test
+print_data <- function(exercise_number, control_group, treatment_group, mode = NULL) {
+  
+  # To get the effect size (r)
+  calculate_effect_size_r <- function(U, n1, n2) {
+    r <- U / (n1 * n2)
+    return(r)
+  }
+  
+  effectiveness_col_name <- if (is.null(mode)) {
+    if(exercise_number == "race"){
+      paste("Race Effectiveness", sep="")
+    } else {
+      paste("Exercise", exercise_number, " Effectiveness", sep="")      
+    }
+  } else {
+    if(exercise_number == 2){
+      paste("Exercise ", exercise_number, " Effectiveness ", mode, sep="")
+    } else if(exercise_number == "race"){
+      paste("Race Effectiveness Increase", sep="")      
+    } else {
+      paste("Exercise", exercise_number, " Effectiveness ", mode, sep="")
+    }
+  }
+  
+  control_data <- as.numeric(control_group[[effectiveness_col_name]])
+  treatment_data <- as.numeric(treatment_group[[effectiveness_col_name]])
+  
+  # Perform the Wilcoxon test
+  test_result <- wilcox.test(control_data, treatment_data)
+  
+  title <- if (exercise_number == "race") "Race" else paste('Exercise', exercise_number)
+  
+  # Output the results
+  cat(
+    title,
+    '\nControl mean:', mean(control_data, na.rm = TRUE),
+    '\nControl median: ', median(control_data, na.rm = TRUE),
+    '\nExperimental mean:', mean(treatment_data, na.rm = TRUE),
+    '\nExperimental median: ', median(treatment_data, na.rm = TRUE),
+    '\np-value: ', test_result$p.value,
+    '\nU: ', test_result$statistic,
+    '\nr: ', calculate_effect_size_r(test_result$statistic, 100, 135),
+    '\n'
+  )
+}
+print_data("race", rf_control_group, rf_treatment_group)
+print_data(1, rf_control_group, rf_treatment_group)
+print_data(2, rf_control_group, rf_treatment_group)
+print_data(3, rf_control_group, rf_treatment_group)
+print_data(4, rf_control_group, rf_treatment_group)
+print_data("race", rfi_control_group, rfi_treatment_group, "Increase")
+print_data(1, rfi_control_group, rfi_treatment_group, "Increase")
+print_data(2, rfi_control_group, rfi_treatment_group, "Increase")
+print_data(3, rfi_control_group, rfi_treatment_group, "Increase")
+print_data(4, rfi_control_group, rfi_treatment_group, "Increase")

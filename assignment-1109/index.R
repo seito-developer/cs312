@@ -66,36 +66,3 @@ print_data(1, "Increase")
 print_data(2, "Increase")
 print_data(3, "Increase")
 print_data(4, "Increase")
-
-# Matcing
-##install.packages("MatchIt")
-##library(MatchIt)
-
-##control_group$treatment <- 0
-##treatment_group$treatment <- 1
-
-##combined_data <- rbind(control_group, treatment_group)
-##arramged_dataset <- na.omit(combined_data)
-
-##ps_model <- matchit(
-##  arramged_dataset$treatment ~ 
-##    ##arramged_dataset$`Race Effectiveness` + 
-    #arramged_dataset$`Exercise1 Effectiveness` +
-    #arramged_dataset$`Exercise2 Effectiveness` +
-    #arramged_dataset$`Exercise3 Effectiveness` + 
-    #arramged_dataset$`Exercise4 Effectiveness` + 
-    #arramged_dataset$`Race Effectiveness Increase` + 
-    #arramged_dataset$`Exercise1 Effectiveness Increase` +
-    #arramged_dataset$`Exercise 2 Effectiveness Increase` +
-    #arramged_dataset$`Exercise3 Effectiveness Increase` + 
-    #arramged_dataset$`Exercise4 Effectiveness Increase` + 
-    #arramged_dataset$`Race Active Time`,
-    #arramged_dataset$`Exercise1 Active Time` +
-    #arramged_dataset$`Exercise2 Active Time` +
-    #arramged_dataset$`Exercise3 Active Time` +
-    #arramged_dataset$`Exercise4 Active Time`,
-##  data = arramged_dataset, method = "nearest")
-
-##summary(ps_model)
-##matched_data <- match.data(ps_model)
-##matched_data
